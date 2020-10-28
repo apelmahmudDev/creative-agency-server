@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
-const ObjectId  = require('mongodb').ObjectId;
+var ObjectID = require('mongodb').ObjectID;
 require('dotenv').config();
 
 const app = express();
@@ -17,6 +17,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 client.connect(err => {
   const serviceCollection = client.db(`${process.env.DB_NAME}`).collection("service");
   const feedbackCollection = client.db(`${process.env.DB_NAME}`).collection("feedback");
+  const orderCollection = client.db(`${process.env.DB_NAME}`).collection("order");
   
   // INSERT SERVICES AT THE DATABASE
   app.post('/addService', (req, res) => {
@@ -29,6 +30,14 @@ client.connect(err => {
   // INSERT FEEDBACK AT THE DATABASE
   app.post('/addFeedback', (req, res) => {
     feedbackCollection.insertOne(req.body)
+    .then(result => {
+      res.send(result.insertedCount > 0)
+    })
+  })
+
+  // INSERT ORDER AT THE DATABASE
+  app.post('/addOrder', (req, res) => {
+    orderCollection.insertOne(req.body)
     .then(result => {
       res.send(result.insertedCount > 0)
     })
@@ -50,9 +59,17 @@ client.connect(err => {
     })
   })
 
+  // READ ORDERED SERVICE FOR SPECIFIC CLIENT
+  app.get('/clientOrder', (req, res) => {
+    orderCollection.find({email: req.query.email})
+    .toArray((error, documents) => {
+      res.send(documents)
+    })
+  })
+
   //READ A SPEACIFIC SERVICE USING PARAMS
   app.get('/order/:id', (req, res) => {
-    serviceCollection.find({_id: ObjectId(req.params.id)})
+    serviceCollection.find({_id: ObjectID(req.params.id)})
     .toArray((error, documents) => {
         res.send(documents[0])
     })
