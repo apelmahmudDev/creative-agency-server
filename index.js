@@ -18,6 +18,7 @@ client.connect(err => {
   const serviceCollection = client.db(`${process.env.DB_NAME}`).collection("service");
   const feedbackCollection = client.db(`${process.env.DB_NAME}`).collection("feedback");
   const orderCollection = client.db(`${process.env.DB_NAME}`).collection("order");
+  const adminCollection = client.db(`${process.env.DB_NAME}`).collection("admin");
   
   // INSERT SERVICES AT THE DATABASE
   app.post('/addService', (req, res) => {
@@ -43,6 +44,27 @@ client.connect(err => {
     })
   })
 
+  // INSERT A ADMIN AT THE DATABASE
+  app.post('/admin', (req, res) => {
+    adminCollection.insertOne(req.body)
+    .then(result => {
+      res.send(result.insertedCount > 0)
+    })
+  })
+
+   // FIND ADMIN
+   app.get('/findAdmin', (req, res) => {
+    adminCollection.find({email: req.query.email})
+    .toArray((error, documents) => {
+      if(documents.length){
+        res.send(documents[0])
+      }
+      else{
+        console.log('Could not find admin')
+      }
+    })
+  })
+
   // READ ALL SERVICES FROM THE DATABASE
   app.get('/services', (req, res) => {
     serviceCollection.find({})
@@ -59,9 +81,17 @@ client.connect(err => {
     })
   })
 
-  // READ ORDERED SERVICE FOR SPECIFIC CLIENT
+  // READ ORDERED SERVICES FOR SPECIFIC CLIENT
   app.get('/clientOrder', (req, res) => {
     orderCollection.find({email: req.query.email})
+    .toArray((error, documents) => {
+      res.send(documents)
+    })
+  })
+
+  // READ ALL ORDERED SERVICES FOR ADMIN
+  app.get('/orderdServices', (req, res) => {
+    orderCollection.find({})
     .toArray((error, documents) => {
       res.send(documents)
     })
