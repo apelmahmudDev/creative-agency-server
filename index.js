@@ -106,6 +106,17 @@ client.connect(err => {
     })
   })
 
+  // ORDER STATUS CHNANGER
+  app.patch('/changer/:id', (req, res) => {
+    orderCollection.updateOne({_id: ObjectID(req.params.id)},
+      {
+        $set: {status: req.body.value}
+      })
+      .then(result => {
+        res.send(result.modifiedCount > 0);
+      })
+  })
+
 });
 
 app.get('/', (req, res) => {
