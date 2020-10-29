@@ -112,6 +112,4 @@ app.get('/', (req, res) => {
   res.send('Hello Creative agency!');
 })
 
-app.listen(`${process.env.DB_PORT}`, () => {
-  console.log(`Example app listening at http://localhost:${process.env.DB_PORT}`);
-})
+app.listen(process.env.PORT || `${process.env.DB_PORT}`);
