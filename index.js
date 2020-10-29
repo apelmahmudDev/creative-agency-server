@@ -5,13 +5,13 @@ const MongoClient = require('mongodb').MongoClient;
 var ObjectID = require('mongodb').ObjectID;
 require('dotenv').config();
 
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.clbh1.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+let client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.clbh1.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 client.connect(err => {
@@ -76,8 +76,9 @@ client.connect(err => {
   // READ ALL FEEDBACK FROM THE DATABASE
   app.get('/feedback', (req, res) => {
     feedbackCollection.find({})
-    .toArray((error, documents) => {
-      res.send(documents)
+    .toArray((err, documents) => {
+      res.send(documents);
+      console.log(err);
     })
   })
 
@@ -106,9 +107,6 @@ client.connect(err => {
   })
 
 });
-
-
-
 
 app.get('/', (req, res) => {
   res.send('Hello Creative agency!');
